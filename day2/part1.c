@@ -1,6 +1,7 @@
 #include <stdio.h>
+#include <string.h>
 
-#define INPUT_FILE "example.txt"
+#define INPUT_FILE "input.txt"
 
 #define MIN_RED 12
 #define MIN_GREEN 13
@@ -27,13 +28,37 @@ int read_game(char *line, ssize_t read)
     }
 
     currentCount = 0;
+    int isValid = 1;
+    ++i;
 
-    for (++i; i < read; i++) {
+    for (; i < read; i++) {
+        // Iterate through the remaining characters.
         if (line[i] >= '0' && line[i] <= '9') {
             currentCount *= 10;
             currentCount += (line[i] - '0');
-        } else if (line[i] == '')
+        } else if (line[i] == ',' || line[i] == ';' || line[i] == '\0' || line[i] == '\n') {
+            // Check what the last 3/4/5 chars are
+            if (strncmp(&line[i - 3], "red", 3) == 0) {
+                if (currentCount > MIN_RED) {
+                    isValid = 0;
+                    break;
+                }
+            } else if (strncmp(&line[i - 4], "blue", 4) == 0) {
+                if (currentCount > MIN_BLUE) {
+                    isValid = 0;
+                    break;
+                }
+            } else if (strncmp(&line[i - 5], "green", 5) == 0) {
+                if (currentCount > MIN_GREEN) {
+                    isValid = 0;
+                    break;
+                }
+            }
+            currentCount = 0;
+        }
     }
+
+    return isValid ? gameId : 0;
 }
 
 int main()
@@ -45,9 +70,8 @@ int main()
     ssize_t read;
 
     int sum = 0;
-    int i;
-
-    for (i = 0; i > 0; i++) {
+    
+    while ((read = getline(&line, &len, fp)) != -1) {
         sum += read_game(line, read);
     }
 
