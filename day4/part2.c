@@ -84,5 +84,7 @@ int main()
 
     printf("Final total: %d\n", total);
 
+    free(repeats);
+
     return 0;
 }
